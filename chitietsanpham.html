@@ -64,53 +64,13 @@
                     <strong>Mô tả:</strong><br>
                     <span id="product-description"></span>
                 </p>
-                <button id="update-btn" class="btn btn-warning" onclick="openUpdateModal()">Cập nhật</button>
+                <button id="update-btn" class="btn btn-warning" onclick="updatepage()">Cập nhật</button>
                 <button id="delete-btn" class="btn btn-danger" onclick="deleteProduct()">Xóa</button>
             </div>
         </div>
 
         <h3 class="header-title">Hình ảnh sản phẩm</h3>
         <div id="product-images" class="image-gallery"></div>
-    </div>
-
-    <!-- Modal Cập nhật sản phẩm -->
-    <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateModalLabel">Cập nhật sản phẩm</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="update-form">
-                        <div class="mb-3">
-                            <label for="update-name" class="form-label">Tên sản phẩm</label>
-                            <input type="text" class="form-control" id="update-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="update-cost-price" class="form-label">Giá nhập</label>
-                            <input type="number" class="form-control" id="update-cost-price" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="update-sale-price" class="form-label">Giá bán</label>
-                            <input type="number" class="form-control" id="update-sale-price" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="update-quantity" class="form-label">Số lượng</label>
-                            <input type="number" class="form-control" id="update-quantity" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="update-description" class="form-label">Mô tả</label>
-                            <textarea class="form-control" id="update-description" rows="3" required></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" onclick="submitUpdate()">Lưu thay đổi</button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -167,17 +127,8 @@
                 .catch(error => console.error('Lỗi khi lấy hình ảnh sản phẩm:', error));
         }
 
-        function openUpdateModal() {
-            // Điền thông tin sản phẩm vào modal
-            document.getElementById('update-name').value = document.getElementById('product-name').innerText;
-            document.getElementById('update-cost-price').value = document.getElementById('product-cost-price').innerText;
-            document.getElementById('update-sale-price').value = document.getElementById('product-sale-price').innerText;
-            document.getElementById('update-quantity').value = document.getElementById('product-quantity').innerText;
-            document.getElementById('update-description').value = document.getElementById('product-description').innerText;
-
-            // Hiện modal
-            const updateModal = new bootstrap.Modal(document.getElementById('updateModal'));
-            updateModal.show();
+        function updatepage() {
+            window.location.href = `capnhatsanpham.html?id=${productId}`;
         }
 
         function submitUpdate() {
