@@ -30,6 +30,14 @@
 
         <div class="mb-4">
             <input type="text" class="form-control" id="search-input" placeholder="Tìm kiếm sản phẩm..." oninput="filterProducts()">
+            <br>
+            <div class="mb-4">
+                <select id="category-filter" class="form-select" onchange="filterProducts()">
+                    <option value="">Tất cả phân loại</option>
+                    <!-- Các phân loại sẽ được nạp ở đây -->
+                </select>
+            </div>
+
         </div>
 
         <table class="table table-striped table-bordered">
@@ -109,8 +117,10 @@
         // Nạp phân loại vào các dropdown
         function populateCategorySelects() {
             const newProductCategorySelect = document.getElementById('newProductCategory');
+            const categoryFilterSelect = document.getElementById('category-filter');
             categories.forEach(category => {
                 newProductCategorySelect.innerHTML += `<option value="${category._id}">${category.name}</option>`;
+                categoryFilterSelect.innerHTML += `<option value="${category._id}">${category.name}</option>`;
             });
         }
 
@@ -162,7 +172,13 @@
         // Tìm kiếm sản phẩm
         function filterProducts() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchTerm));
+            const selectedCategory = document.getElementById('category-filter').value;
+
+            const filteredProducts = products.filter(product => {
+                const matchesName = product.name.toLowerCase().includes(searchTerm);
+                const matchesCategory = selectedCategory ? product.phanloaiId === selectedCategory : true;
+                return matchesName && matchesCategory;
+            });
             displayProducts(filteredProducts);
         }
 
