@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Phiếu Nhập</title>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+
+    <div class="main-content container mt-5">
+        <h1 class="text-center mb-4">Danh Sách Phiếu Nhập</h1>
+        <div class="mb-4">
+            <!-- <button class="btn btn-primary" onclick="goToHomePage()">Trở về Trang Chủ</button> -->
+            <button class="btn btn-success ml-2" onclick="goToCreateReceipt()">Thêm Phiếu Nhập Mới</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Nhà Cung Cấp</th>
+                        <th>Ghi Chú</th>
+                        <th>Tổng Giá</th>
+                        <th>Ngày Nhập</th>
+                        <th>Ngày Xác Nhận</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="receiptList">
+                    <!-- Danh sách phiếu nhập sẽ được tải vào đây -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            loadReceipts();
+        });
+
+        // Hàm chuyển hướng sang trang tạo phiếu nhập mới
+        function goToCreateReceipt() {
+            window.location.href = "taophieunhap.html"; // Đường dẫn trang tạo phiếu nhập mới
+        }
+
+        // Hàm tải danh sách phiếu nhập từ API và sắp xếp theo ngày xác nhận
+        async function loadReceipts() {
+            try {
+                const response = await fetch('http://localhost:3000/api/phieunhap/');
+                let receipts = await response.json();
+
+                // Hàm chuyển đổi chuỗi ngày dạng "dd/MM/yyyy" thành đối tượng Date
+                function parseDate(dateString) {
+                    const [day, month, year] = dateString.split('/');
+                    return new Date(`${year}-${month}-${day}`);
+                }
+
+                // Sắp xếp theo ngày xác nhận (từ mới nhất đến cũ nhất)
+                receipts.sort((a, b) => parseDate(b.confirmationDate) - parseDate(a.confirmationDate));
+
+                const receiptList = document.getElementById('receiptList');
+
+                receipts.forEach((receipt, index) => {
+                    const receiptRow = document.createElement('tr');
+                    receiptRow.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${receipt.nhacungcap[0].name}</td>
+                        <td>${receipt.note}</td>
+                        <td>${receipt.totalPrice} VNĐ</td>
+                        <td>${receipt.stockInDate}</td>
+                        <td>${receipt.confirmationDate}</td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="viewReceiptDetails('${receipt._id}')">Xem Chi Tiết</button>
+                        </td>
+                    `;
+                    receiptList.appendChild(receiptRow);
+                });
+            } catch (error) {
+                alert("Có lỗi xảy ra khi tải danh sách phiếu nhập.");
+            }
+        }
+
+        // Hàm xem chi tiết phiếu nhập
+        function viewReceiptDetails(receiptId) {
+            window.location.href = `chitietphieunhap.html?id=${receiptId}`; // Chuyển đến trang chi tiết phiếu nhập với ID
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

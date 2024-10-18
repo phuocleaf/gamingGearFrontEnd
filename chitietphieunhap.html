@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Phiếu Nhập</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Chi Tiết Phiếu Nhập</h1>
+
+        <!-- Thông báo lỗi nếu có lỗi xảy ra khi tải dữ liệu -->
+        <div id="errorMessage" class="alert alert-danger" style="display: none;">
+            Không thể tải chi tiết phiếu nhập. Vui lòng thử lại sau.
+        </div>
+
+        <!-- Hiển thị chi tiết phiếu nhập -->
+        <div id="receiptDetails" class="card" style="display: none;">
+            <div class="card-header">
+                <h4>Thông tin Phiếu Nhập</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Nhà Cung Cấp:</strong> <span id="supplierName"></span></p>
+                <p><strong>Địa chỉ:</strong> <span id="supplierAddress"></span></p>
+                <p><strong>Số điện thoại:</strong> <span id="supplierPhone"></span></p>
+                <p><strong>Email:</strong> <span id="supplierEmail"></span></p>
+                <p><strong>Ghi chú:</strong> <span id="note"></span></p>
+                <p><strong>Tổng giá:</strong> <span id="totalPrice"></span> VNĐ</p>
+                <p><strong>Ngày nhập:</strong> <span id="stockInDate"></span></p>
+                <p><strong>Ngày xác nhận:</strong> <span id="confirmationDate"></span></p>
+            </div>
+        </div>
+
+        <!-- Hiển thị danh sách sản phẩm -->
+        <div id="productDetails" class="card mt-4" style="display: none;">
+            <div class="card-header">
+                <h4>Danh sách sản phẩm</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Tên Sản Phẩm</th>
+                                <th>Giá Nhập</th>
+                                <th>Số Lượng Nhập</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productList">
+                            <!-- Danh sách sản phẩm sẽ được tải vào đây -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            loadReceiptDetails();
+        });
+
+        // Hàm lấy giá trị của tham số từ URL
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Hàm tải chi tiết phiếu nhập từ API
+        async function loadReceiptDetails() {
+            try {
+                const receiptId = getUrlParameter('id'); // Lấy id từ URL
+                const response = await fetch(`http://localhost:3000/api/phieunhap/${receiptId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Không thể tải dữ liệu từ API');
+                }
+
+                const receiptData = await response.json();
+                
+                if (receiptData.length === 0) {
+                    throw new Error('Không có dữ liệu');
+                }
+
+                const receipt = receiptData[0]; // Lấy đối tượng đầu tiên của mảng JSON trả về
+
+                // Cập nhật thông tin phiếu nhập
+                document.getElementById('supplierName').textContent = receipt.nhacungcap[0].name;
+                document.getElementById('supplierAddress').textContent = receipt.nhacungcap[0].address;
+                document.getElementById('supplierPhone').textContent = receipt.nhacungcap[0].phoneNumber;
+                document.getElementById('supplierEmail').textContent = receipt.nhacungcap[0].email;
+                document.getElementById('note').textContent = receipt.note;
+                document.getElementById('totalPrice').textContent = receipt.totalPrice;
+                document.getElementById('stockInDate').textContent = receipt.stockInDate;
+                document.getElementById('confirmationDate').textContent = receipt.confirmationDate;
+
+                // Hiển thị chi tiết phiếu nhập
+                document.getElementById('receiptDetails').style.display = 'block';
+
+                // Hiển thị chi tiết từng sản phẩm
+                await loadProductDetails(receipt.products);
+
+            } catch (error) {
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+
+        // Hàm tải chi tiết sản phẩm từ API và hiển thị thông tin cần thiết
+        async function loadProductDetails(products) {
+            const productList = document.getElementById('productList');
+
+            for (let i = 0; i < products.length; i++) {
+                const productId = products[i].productId;
+                try {
+                    const productResponse = await fetch(`http://localhost:3000/api/sanpham/${productId}`);
+                    
+                    if (!productResponse.ok) {
+                        throw new Error('Không thể tải dữ liệu sản phẩm');
+                    }
+
+                    const productData = await productResponse.json();
+
+                    // Thêm thông tin sản phẩm vào bảng
+                    const productRow = document.createElement('tr');
+                    productRow.innerHTML = `
+                        <td>${i + 1}</td>
+                        <td>${productData.name}</td>
+                        <td>${products[i].costPrice} VNĐ</td>
+                        <td>${products[i].quantity}</td>
+                    `;
+                    productList.appendChild(productRow);
+
+                } catch (error) {
+                    console.error(`Lỗi khi tải sản phẩm với ID: ${productId}`, error);
+                }
+            }
+
+            // Hiển thị danh sách sản phẩm
+            document.getElementById('productDetails').style.display = 'block';
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

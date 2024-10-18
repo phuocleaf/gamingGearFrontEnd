@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhập Phiếu Nhập Hàng</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Nhập Phiếu Nhập Hàng</h1>
+        <form id="receiptForm">
+            <div class="form-group">
+                <label for="supplierSelect">Nhà cung cấp:</label>
+                <select class="form-control" id="supplierSelect" required>
+                    <option value="">Chọn nhà cung cấp</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="note">Ghi chú:</label>
+                <input type="text" class="form-control" id="note" required>
+            </div>
+            <div class="form-group">
+                <label for="totalPrice">Tổng giá:</label>
+                <input type="number" class="form-control" id="totalPrice" required readonly>
+            </div>
+            <div class="form-group">
+                <label for="stockInDate">Ngày nhập:</label>
+                <input type="date" class="form-control" id="stockInDate" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmationDate">Ngày xác nhận:</label>
+                <input type="date" class="form-control" id="confirmationDate" required>
+            </div>
+
+            <h2>Chọn Sản Phẩm</h2>
+            <div class="form-group">
+                <label for="productSelect">Sản phẩm:</label>
+                <select class="form-control" id="productSelect">
+                    <option value="">Chọn sản phẩm</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Số lượng:</label>
+                <input type="number" class="form-control" id="quantity" value="1" min="1">
+            </div>
+            <button type="button" class="btn btn-success" onclick="addProduct()">Thêm Sản Phẩm</button>
+
+            <div class="product-list mt-3" id="productList"></div>
+            <button type="submit" class="btn btn-primary mt-3">Lưu Phiếu Nhập</button>
+        </form>
+    </div>
+
+    <script>
+        let totalCost = 0;
+        const productsArray = [];
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("receiptForm").addEventListener("submit", saveReceipt);
+            loadProducts();
+            loadSuppliers();
+        });
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('http://localhost:3000/api/sanpham/');
+                const products = await response.json();
+                const productSelect = document.getElementById('productSelect');
+
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product._id;
+                    option.textContent = `${product.name} - Giá: ${product.costPrice} VNĐ`;
+                    productSelect.appendChild(option);
+                });
+            } catch (error) {
+                alert("Có lỗi xảy ra khi tải danh sách sản phẩm.");
+            }
+        }
+
+        async function loadSuppliers() {
+            try {
+                const response = await fetch('http://localhost:3000/api/nhacungcap/');
+                const suppliers = await response.json();
+                const supplierSelect = document.getElementById('supplierSelect');
+
+                suppliers.forEach(supplier => {
+                    const option = document.createElement('option');
+                    option.value = supplier._id;
+                    option.textContent = supplier.name;
+                    supplierSelect.appendChild(option);
+                });
+            } catch (error) {
+                alert("Có lỗi xảy ra khi tải danh sách nhà cung cấp.");
+            }
+        }
+
+        function addProduct() {
+            const productSelect = document.getElementById('productSelect');
+            const selectedProductId = productSelect.value;
+            const selectedProductText = productSelect.options[productSelect.selectedIndex].text;
+            const quantity = parseInt(document.getElementById('quantity').value);
+
+            if (selectedProductId && quantity > 0) {
+                // Kiểm tra xem sản phẩm đã được thêm vào trước đó hay chưa
+                const existingProduct = productsArray.find(product => product.productId === selectedProductId);
+                if (existingProduct) {
+                    existingProduct.quantity += quantity; // Cộng thêm số lượng
+                } else {
+                    const productCost = parseFloat(selectedProductText.split('Giá: ')[1].split(' VNĐ')[0]) * quantity;
+                    productsArray.push({
+                        productId: selectedProductId,
+                        name: selectedProductText.split(' - ')[0], // Hiển thị tên sản phẩm thay vì ID
+                        quantity: quantity,
+                        costPrice: parseFloat(selectedProductText.split('Giá: ')[1].split(' VNĐ')[0])
+                    });
+                }
+
+                renderProductList();
+                updateTotalPrice();
+                resetProductSelection();
+            }
+        }
+
+        function renderProductList() {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = ''; // Xóa danh sách hiện tại
+
+            productsArray.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.classList.add('product-item', 'border', 'p-2', 'mb-2', 'd-flex', 'justify-content-between');
+
+                const productCost = product.costPrice * product.quantity;
+                productItem.innerHTML = `
+                    <span>${product.name} - Số lượng: ${product.quantity} - Tổng: ${productCost} VNĐ</span>
+                    <button class="btn btn-danger btn-sm" onclick="removeProduct('${product.productId}')">Xóa</button>
+                `;
+                productList.appendChild(productItem);
+            });
+        }
+
+        function removeProduct(productId) {
+            const productIndex = productsArray.findIndex(product => product.productId === productId);
+            if (productIndex > -1) {
+                productsArray.splice(productIndex, 1);
+                renderProductList();
+                updateTotalPrice();
+            }
+        }
+
+        function updateTotalPrice() {
+            totalCost = productsArray.reduce((sum, product) => sum + (product.costPrice * product.quantity), 0);
+            document.getElementById('totalPrice').value = totalCost;
+        }
+
+        function resetProductSelection() {
+            document.getElementById('productSelect').value = '';
+            document.getElementById('quantity').value = 1;
+        }
+
+        async function saveReceipt(event) {
+            event.preventDefault();
+
+            const note = document.getElementById('note').value;
+            const stockInDate = formatDate(document.getElementById('stockInDate').value);
+            const confirmationDate = formatDate(document.getElementById('confirmationDate').value);
+            const supplierId = document.getElementById('supplierSelect').value;
+
+            const receiptData = {
+                note,
+                totalPrice: totalCost,
+                stockInDate,
+                confirmationDate,
+                nhacungcapId: supplierId,
+                products: productsArray.map(product => ({
+                    productId: product.productId,
+                    quantity: product.quantity,
+                    costPrice: product.costPrice
+                }))
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/phieunhap/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(receiptData)
+                });
+
+                if (response.ok) {
+                    alert('Phiếu nhập đã được lưu thành công!');
+                    document.getElementById('receiptForm').reset();
+                    totalCost = 0;
+                    document.getElementById('totalPrice').value = totalCost;
+                    document.getElementById('productList').innerHTML = '';
+                    productsArray.length = 0;
+                } else {
+                    throw new Error('Có lỗi xảy ra khi lưu phiếu nhập.');
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-GB');
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

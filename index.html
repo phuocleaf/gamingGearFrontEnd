@@ -1,124 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Quản Lý Bán Hàng</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <style>
-        body {
-            padding-top: 56px; /* Space for fixed navbar */
-        }
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: calc(100% - 20px); /* Reduce the width slightly */
-            margin-left: 10px; /* Thụt vào bên trái */
-            z-index: 1030;
-        }
-        .main-content {
-            padding: 20px;
-        }
-    </style>
 </head>
+
 <body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav class="sidebar bg-light" style="width: 250px; height: 100vh; position: fixed;">
+            <h4 class="text-center py-3">Quản Lý Bán Hàng</h4>
+            <div class="list-group">
+                <a href="index.html" class="list-group-item list-group-item-action">Trang chủ</a>
+                <a href="danhmuc.html" class="list-group-item list-group-item-action">Danh Mục</a>
+                <a href="nhacungcap.html" class="list-group-item list-group-item-action">Nhà Cung Cấp</a>
+                <a href="phieunhap.html" class="list-group-item list-group-item-action">Nhập Kho</a>
+                <a href="sanpham.html" class="list-group-item list-group-item-action">Sản Phẩm</a>
+                <a href="#" class="list-group-item list-group-item-action">Khách Hàng</a>
+                <a href="#" class="list-group-item list-group-item-action">Đơn Hàng</a>
+                <a href="#" class="list-group-item list-group-item-action">Thống kê</a>
+                <a href="#" class="list-group-item list-group-item-action">Người giao hàng</a>
+                <a href="nhanvien.html" class="list-group-item list-group-item-action">Nhân viên</a>
+                <a class="list-group-item list-group-item-action text-danger" href="#" id="logout">Đăng xuất</a>
+            </div>
+        </nav>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="index.html">Quản Lý Bán Hàng</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link dangxuat" >Đăng xuất</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+        <!-- Main Content -->
+        <div class="container" style="margin-left: 250px; padding-top: 56px;">
+            <h1 class="text-center my-4">Chào mừng đến với Trang Quản Lý</h1>
 
-    <!-- Main Content -->
-    <div class="main-content container">
-        <h1 class="my-4 text-center">Chào mừng đến với Trang Quản Lý</h1>
-        <div class="row text-center">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Danh Mục</h5>
-                        <p class="card-text">Quản lý các danh mục sản phẩm.</p>
-                        <a href="danhmuc.html" class="btn btn-primary">Xem</a>
+            <div class="row text-center">
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Danh Mục</h5>
+                            <p class="card-text">Quản lý các danh mục sản phẩm.</p>
+                            <a href="danhmuc.html" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Nhà Cung Cấp</h5>
-                        <p class="card-text">Quản lý thông tin các nhà cung cấp.</p>
-                        <a href="nhacungcap.html" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Nhà Cung Cấp</h5>
+                            <p class="card-text">Quản lý thông tin các nhà cung cấp.</p>
+                            <a href="nhacungcap.html" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Nhập Kho</h5>
-                        <p class="card-text">Quản lý các phiếu nhập kho.</p>
-                        <a href="#" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Nhập Kho</h5>
+                            <p class="card-text">Quản lý các phiếu nhập kho.</p>
+                            <a href="phieunhap.html" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Sản Phẩm</h5>
-                        <p class="card-text">Quản lý các sản phẩm.</p>
-                        <a href="sanpham.html" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Sản Phẩm</h5>
+                            <p class="card-text">Quản lý các sản phẩm.</p>
+                            <a href="sanpham.html" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Khách Hàng</h5>
-                        <p class="card-text">Quản lý thông tin khách hàng.</p>
-                        <a href="#" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Khách Hàng</h5>
+                            <p class="card-text">Quản lý thông tin khách hàng.</p>
+                            <a href="#" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Đơn Hàng</h5>
-                        <p class="card-text">Quản lý các đơn hàng.</p>
-                        <a href="#" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Đơn Hàng</h5>
+                            <p class="card-text">Quản lý các đơn hàng.</p>
+                            <a href="#" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Banner</h5>
-                        <p class="card-text">Quản lý Banner.</p>
-                        <a href="#" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Thống kê</h5>
+                            <p class="card-text">Thống kê doanh thu.</p>
+                            <a href="#" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Người giao hàng</h5>
-                        <p class="card-text">Quản lý người giao hàng. </p>
-                        <a href="#" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Người giao hàng</h5>
+                            <p class="card-text">Quản lý người giao hàng.</p>
+                            <a href="#" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Nhân viên</h5>
-                        <p class="card-text">Quản lý nhân viên.</p>
-                        <a href="#" class="btn btn-primary">Xem</a>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Nhân viên</h5>
+                            <p class="card-text">Quản lý nhân viên.</p>
+                            <a href="nhanvien.html" class="btn btn-primary">Xem</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,14 +128,14 @@
         if (!id) {
             window.location.href = 'dangnhap.html';
         }
-        document.querySelector('.dangxuat').onclick = function () {
+        document.getElementById('logout').onclick = function () {
             confirm('Bạn có chắc chắn muốn đăng xuất?') && (
                 localStorage.removeItem('id'),
                 localStorage.removeItem('role'),
                 window.location.href = 'dangnhap.html'
             );
         };
-        
     </script>
 </body>
+
 </html>

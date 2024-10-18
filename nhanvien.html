@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Nhân Viên</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Quản Lý Nhân Viên</h1>
+        <div class="mb-4">
+            <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm nhân viên..." oninput="searchEmployees()">
+            <button class="btn btn-success mt-2" onclick="goToCreateEmployee()">Thêm Nhân Viên Mới</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Họ Tên</th>
+                        <th>Email</th>
+                        <th>Giới Tính</th>
+                        <th>Ngày Sinh</th>
+                        <th>Số Điện Thoại</th>
+                        <th>Chức Vụ</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeList">
+                    <!-- Danh sách nhân viên sẽ được tải vào đây -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let employees = []; // Biến lưu trữ danh sách nhân viên
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadEmployees();
+        });
+
+        // Hàm chuyển hướng sang trang tạo nhân viên mới
+        function goToCreateEmployee() {
+            window.location.href = "taonhanvien.html"; // Đường dẫn trang tạo nhân viên mới
+        }
+
+        // Hàm tải danh sách nhân viên từ API
+        async function loadEmployees() {
+            try {
+                const response = await fetch('http://localhost:3000/api/nhanvien');
+                employees = await response.json(); // Lưu trữ danh sách nhân viên vào biến
+                displayEmployees(employees); // Hiển thị danh sách nhân viên
+            } catch (error) {
+                alert("Có lỗi xảy ra khi tải danh sách nhân viên.");
+            }
+        }
+
+        // Hàm hiển thị danh sách nhân viên
+        function displayEmployees(employeeList) {
+            const employeeTable = document.getElementById('employeeList');
+            employeeTable.innerHTML = ''; // Xóa sạch danh sách hiện tại
+
+            employeeList.forEach((employee, index) => {
+                const employeeRow = document.createElement('tr');
+                const dateOfBirth = formatDate(employee.dateOfBirth); // Chuyển đổi định dạng ngày
+
+                employeeRow.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${employee.name}</td>
+                    <td>${employee.email}</td>
+                    <td>${employee.sex === 'male' ? 'Nam' : 'Nữ'}</td>
+                    <td class="text-nowrap">${dateOfBirth}</td>
+                    <td>${employee.phone}</td>
+                    <td>${employee.role}</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="updateEmployee('${employee._id}')">Cập Nhật</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteEmployee('${employee._id}')">Xóa</button>
+                    </td>
+                `;
+                employeeTable.appendChild(employeeRow);
+            });
+        }
+
+        // Hàm định dạng ngày sinh
+        function formatDate(dateString) {
+            const parts = dateString.split('/');
+            if (parts.length === 3) {
+                const day = parts[0].padStart(2, '0'); // Đảm bảo ngày có 2 chữ số
+                const month = parts[1].padStart(2, '0'); // Đảm bảo tháng có 2 chữ số
+                const year = parts[2]; // Giữ nguyên năm
+                return `${day}/${month}/${year}`; // Trả về định dạng "DD/MM/YYYY"
+            }
+            return dateString; // Trả lại nếu không cần chuyển đổi
+        }
+
+        // Hàm tìm kiếm nhân viên theo tên
+        function searchEmployees() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const filteredEmployees = employees.filter(employee => employee.name.toLowerCase().includes(searchValue));
+            displayEmployees(filteredEmployees); // Hiển thị danh sách nhân viên đã lọc
+        }
+
+        // Hàm cập nhật thông tin nhân viên
+        function updateEmployee(employeeId) {
+            window.location.href = `capnhatnhanvien.html?id=${employeeId}`; // Chuyển đến trang cập nhật nhân viên với ID
+        }
+
+        // Hàm xóa nhân viên
+        async function deleteEmployee(employeeId) {
+            if (confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/nhanvien/${employeeId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        alert("Nhân viên đã được xóa.");
+                        loadEmployees(); // Tải lại danh sách nhân viên
+                    } else {
+                        alert("Có lỗi xảy ra khi xóa nhân viên.");
+                    }
+                } catch (error) {
+                    alert("Có lỗi xảy ra khi xóa nhân viên.");
+                }
+            }
+        }
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
