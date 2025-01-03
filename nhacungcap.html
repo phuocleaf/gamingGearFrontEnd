@@ -15,9 +15,63 @@
 </head>
 <body>
 
+    <nav class="navbar bg-body-tertiary fixed-top">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
+                aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- <a class="navbar-brand" href="index.html">Trang chủ</a> -->
+            <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar"
+                aria-labelledby="offcanvasNavbarLabel" style="width: 15%;">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="index.html">Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="danhmuc.html">Danh Mục</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="nhacungcap.html">Nhà Cung Cấp</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="phieunhap.html">Nhập Kho</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="sanpham.html">Sản Phẩm</a>
+                        </li>
+                        <!-- <li class="nav-item">
+                            <a class="nav-link" href="#">Khách Hàng</a>
+                        </li> -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="donhang.html">Đơn Hàng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="thongke.html">Thống kê</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="nguoigiaohang.html">Người Giao Hàng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="nhanvien.html">Nhân Viên</a>
+                        </li>
+                        <li>
+                            <a class="nav-link" href="dangxuat.html">Đăng xuất</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
     
 
-    <div class="container mt-5">
+
+    <div class="container mt-5 py-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="text-center mb-0">Nhà cung cấp</h1>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSupplierModal">Thêm nhà cung cấp</button>

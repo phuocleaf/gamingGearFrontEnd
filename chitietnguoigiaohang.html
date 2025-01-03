@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Người Giao Hàng</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Chi Tiết Người Giao Hàng</h1>
+        <div id="delivererDetails" class="mb-4">
+            <!-- Thông tin chi tiết sẽ được tải vào đây -->
+        </div>
+        <button class="btn btn-primary" data-toggle="modal" data-target="#updateModal" onclick="populateModal()">Cập Nhật</button>
+        <button class="btn btn-danger" onclick="deleteDeliverer()">Xóa</button>
+    </div>
+
+    <!-- Modal Cập Nhật -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateModalLabel">Cập Nhật Thông Tin Người Giao Hàng</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateForm">
+                        <div class="form-group">
+                            <label for="name">Họ Tên</label>
+                            <input type="text" class="form-control" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfBirth">Ngày Sinh</label>
+                            <input type="date" class="form-control" id="dateOfBirth" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sex">Giới Tính</label>
+                            <select class="form-control" id="sex">
+                                <option value="male">Nam</option>
+                                <option value="female">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Số Điện Thoại</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const delivererId = new URLSearchParams(window.location.search).get('id');
+        const apiUrl = `http://localhost:3000/api/nguoigiaohang/${delivererId}`;
+        let delivererData = null; // Lưu thông tin người giao hàng
+
+        document.addEventListener("DOMContentLoaded", function () {
+            loadDelivererDetails();
+            setupUpdateForm();
+        });
+
+        // Hàm tải thông tin chi tiết người giao hàng
+        async function loadDelivererDetails() {
+            try {
+                const response = await fetch(apiUrl);
+                delivererData = await response.json();
+                displayDelivererDetails(delivererData);
+            } catch (error) {
+                alert("Có lỗi xảy ra khi tải thông tin người giao hàng.");
+            }
+        }
+
+        // Hiển thị thông tin người giao hàng
+        function displayDelivererDetails(deliverer) {
+            const detailsContainer = document.getElementById('delivererDetails');
+            detailsContainer.innerHTML = `
+                <p><strong>Họ Tên:</strong> ${deliverer.name}</p>
+                <p><strong>Email:</strong> ${deliverer.email}</p>
+                <p><strong>Ngày Sinh:</strong> ${formatDate(deliverer.dateOfBirth)}</p>
+                <p><strong>Giới Tính:</strong> ${deliverer.sex === 'male' ? 'Nam' : 'Nữ'}</p>
+                <p><strong>Số Điện Thoại:</strong> ${deliverer.phone}</p>
+                <p><strong>Ngày Tạo:</strong> ${deliverer.created_at}</p>
+                <p><strong>Ngày Cập Nhật:</strong> ${deliverer.updated_at}</p>
+            `;
+        }
+
+        // Hàm định dạng ngày
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${year}-${month}-${day}`;
+        }
+
+        // Điền thông tin vào modal khi mở
+        function populateModal() {
+            if (delivererData) {
+                document.getElementById('name').value = delivererData.name;
+                document.getElementById('email').value = delivererData.email;
+                document.getElementById('dateOfBirth').value = formatDate(delivererData.dateOfBirth);
+                document.getElementById('sex').value = delivererData.sex;
+                document.getElementById('phone').value = delivererData.phone;
+            }
+        }
+
+        // Cấu hình form cập nhật
+        function setupUpdateForm() {
+            const updateForm = document.getElementById('updateForm');
+            updateForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const updatedDeliverer = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    dateOfBirth: document.getElementById('dateOfBirth').value,
+                    sex: document.getElementById('sex').value,
+                    phone: document.getElementById('phone').value,
+                };
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updatedDeliverer),
+                    });
+
+                    if (response.ok) {
+                        alert("Thông tin người giao hàng đã được cập nhật.");
+                        loadDelivererDetails();
+                        $('#updateModal').modal('hide'); // Đóng modal
+                    } else {
+                        alert("Có lỗi xảy ra khi cập nhật thông tin.");
+                    }
+                } catch (error) {
+                    alert("Có lỗi xảy ra khi cập nhật thông tin.");
+                }
+            });
+        }
+
+        // Hàm xóa người giao hàng
+        async function deleteDeliverer() {
+            if (confirm("Bạn có chắc chắn muốn xóa người giao hàng này?")) {
+                try {
+                    const response = await fetch(apiUrl, { method: 'DELETE' });
+
+                    if (response.ok) {
+                        alert("Người giao hàng đã được xóa.");
+                        window.location.href = 'quanlynguoigiaohang.html'; // Quay về trang quản lý
+                    } else {
+                        alert("Có lỗi xảy ra khi xóa người giao hàng.");
+                    }
+                } catch (error) {
+                    alert("Có lỗi xảy ra khi xóa người giao hàng.");
+                }
+            }
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

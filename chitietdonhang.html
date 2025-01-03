@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Đơn Hàng</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Chi Tiết Đơn Hàng</h1>
+        <div id="orderDetails">
+            <!-- Order details will be inserted here -->
+        </div>
+
+        <!-- Button to open the update status modal -->
+        <div class="d-flex justify-content-end">
+            <button id="openUpdateStatusModalBtn" class="btn btn-warning">Cập nhật trạng thái</button>
+            <button id="openUpdateDeliveryPersonModalBtn" class="btn btn-info ms-2">Cập nhật người giao hàng</button>
+        </div>
+    </div>
+
+    <!-- Modal for updating status -->
+    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateStatusModalLabel">Cập nhật Trạng Thái</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Trạng thái hiện tại:</strong> <span id="currentStatus">Chưa xác định</span></p>
+                    <div class="d-flex align-items-center">
+                        <label for="orderStatus" class="me-2">Chọn trạng thái mới:</label>
+                        <select id="orderStatus" class="form-select me-2" style="max-width: 300px;">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button id="updateStatusBtn" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for updating delivery person -->
+    <div class="modal fade" id="updateDeliveryPersonModal" tabindex="-1" aria-labelledby="updateDeliveryPersonModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateDeliveryPersonModalLabel">Cập nhật Người Giao Hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Người giao hàng hiện tại:</strong> <span id="currentDeliveryPerson">Chưa xác định</span></p>
+                    <div class="d-flex align-items-center">
+                        <label for="deliveryPerson" class="me-2">Chọn người giao hàng:</label>
+                        <select id="deliveryPerson" class="form-select me-2" style="max-width: 300px;">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button id="updateDeliveryPersonBtn" class="btn btn-primary">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to fetch and display order details
+        function fetchOrderDetails() {
+            const urlParams = new URLSearchParams(window.location.search);  // Get query params from URL
+            const orderId = urlParams.get('id');  // Extract the 'id' parameter
+            const apiUrl = `http://localhost:3000/api/donhang/${orderId}`;  // API endpoint
+
+            // Fetch data from API
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    const currentStatus = order.status;  // Ensure this is fetched from the API response
+                    document.getElementById("currentStatus").textContent = currentStatus;
+
+                    const orderDetailsContainer = document.getElementById("orderDetails");
+
+                    // Display order basic info
+                    orderDetailsContainer.innerHTML = `
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Thông Tin Đơn Hàng</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Mã Đơn Hàng:</strong> ${order._id}</p>
+                                <p><strong>Trạng Thái:</strong> <span id="currentStatus">${order.status}</span></p>
+                                <p><strong>Ngày Tạo:</strong> ${order.created_at}</p>
+                                <p><strong>Cập Nhật:</strong> ${order.updated_at}</p>
+                                <p><strong>Ghi Chú:</strong> ${order.userNote}</p>
+                                <p><strong>Tổng Tiền:</strong> ${order.total.toLocaleString()} VND</p>
+                            </div>
+                        </div>
+
+                        <!-- User Information Section -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Thông Tin Người Đặt</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Họ và Tên:</strong> ${order.userName}</p>
+                                <p><strong>Số Điện Thoại:</strong> ${order.userPhone}</p>
+                                <p><strong>Địa Chỉ:</strong> ${order.userAddress.desc}</p>
+                                <p><strong>Ghi Chú:</strong> ${order.userNote}</p>
+                            </div>
+                        </div>
+
+                        <!-- Cart Items Section -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Sản Phẩm Đặt Mua</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Tên Sản Phẩm</th>
+                                                <th scope="col">Giá</th>
+                                                <th scope="col">Số Lượng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${order.cartList.map(item => `
+                                                <tr>
+                                                    <td>${item.sanPham.name}</td>
+                                                    <td>${item.sanPham.salePrice.toLocaleString()} VND</td>
+                                                    <td>${item.amount}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Information Section -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Thông Tin Vận Chuyển</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Người Giao Hàng:</strong> ${order.nguoiGiaoHangName}</p>
+                                <p><strong>Địa Chỉ Giao Hàng:</strong> ${order.userAddress.desc}</p>
+                            </div>
+                        </div>
+                    `;
+
+                    // Handle the status update modal
+                    const openUpdateStatusModalBtn = document.getElementById("openUpdateStatusModalBtn");
+                    const openUpdateDeliveryPersonModalBtn = document.getElementById("openUpdateDeliveryPersonModalBtn");
+                    const updateStatusModal = new bootstrap.Modal(document.getElementById("updateStatusModal"));
+                    const updateDeliveryPersonModal = new bootstrap.Modal(document.getElementById("updateDeliveryPersonModal"));
+                    const orderStatusSelect = document.getElementById("orderStatus");
+                    const updateStatusBtn = document.getElementById("updateStatusBtn");
+
+                    const deliveryPersonSelect = document.getElementById("deliveryPerson");
+                    const updateDeliveryPersonBtn = document.getElementById("updateDeliveryPersonBtn");
+
+                    openUpdateStatusModalBtn.addEventListener("click", function () {
+                        // Populate status options based on current status
+                        switch (currentStatus) {
+                            case "Chờ xác nhận":
+                                orderStatusSelect.innerHTML = `
+                                    <option value="Đang xử lý">Đang xử lý</option>
+                                    <option value="Đã hủy">Đã hủy</option>
+                                `;
+                                break;
+                            case "Đang xử lý":
+                                orderStatusSelect.innerHTML = `
+                                    <option value="Đang vận chuyển">Đang vận chuyển</option>
+                                    <option value="Đã hủy">Đã hủy</option>
+                                `;
+                                break;
+                            case "Đang vận chuyển":
+                                orderStatusSelect.innerHTML = `
+                                    <option value="Đã giao">Đã giao</option>
+                                    <option value="Đã hủy">Đã hủy</option>
+                                `;
+                                break;
+                            default:
+                                orderStatusSelect.innerHTML = `
+                                    <option value="Chờ xác nhận">Chờ xác nhận</option>
+                                `;
+                                break;
+                        }
+                        updateStatusModal.show();
+                    });
+
+                    // Fetch delivery person options and populate the modal select
+                    fetch('http://localhost:3000/api/nguoiGiaoHang')  // API to get delivery persons
+                        .then(response => response.json())
+                        .then(deliveryPersons => {
+                            deliveryPersonSelect.innerHTML = deliveryPersons.map(person => `
+                                <option value="${person._id}">${person.name}</option>
+                            `).join('');
+                        });
+
+                    openUpdateDeliveryPersonModalBtn.addEventListener("click", function () {
+                        updateDeliveryPersonModal.show();
+                    });
+
+                    // Handle updating order status
+                    //hide button if status da giao or da huy
+                    if (currentStatus === "Đã giao" || currentStatus === "Đã hủy") {
+                        openUpdateStatusModalBtn.style.display = "none";
+                        //hide button nguoi giao hang
+                        openUpdateDeliveryPersonModalBtn.style.display = "none";
+                    }
+
+                    updateStatusBtn.addEventListener("click", function() {
+                        const newStatus = orderStatusSelect.value;
+
+                        // Send the update request to the API with the status in Vietnamese
+                        fetch(`http://localhost:3000/api/donhang/update/${order._id}/${encodeURIComponent(newStatus)}`, {
+                            method: 'PUT'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            alert("Cập nhật trạng thái thành công!");
+                            document.getElementById("currentStatus").textContent = newStatus;  // Update the displayed status
+                            updateStatusModal.hide();  // Close the modal
+                            location.reload();
+                        })
+                        .catch(error => {
+                            console.error("Lỗi khi cập nhật trạng thái:", error);
+                            alert("Không thể cập nhật trạng thái.");
+                        });
+                    });
+
+                    // Handle updating delivery person
+                    updateDeliveryPersonBtn.addEventListener("click", function () {
+                        const selectedPersonId = deliveryPersonSelect.value;
+                        fetch(apiUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ 
+                                nguoiGiaoHangName: deliveryPersonSelect.options[deliveryPersonSelect.selectedIndex].text,
+                                nguoiGiaoHangId: selectedPersonId
+                             }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Cập nhật người giao hàng thành công!");
+                                location.reload();
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching order details:', error);
+                    alert("Có lỗi xảy ra khi tải dữ liệu đơn hàng.");
+                });
+        }
+
+        // Load order details when the page is ready
+        window.onload = fetchOrderDetails;
+    </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
